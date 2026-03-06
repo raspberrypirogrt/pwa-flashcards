@@ -1,28 +1,25 @@
 :root {
-    --primary: #d4a373;
-    /* Muted camel/beige-orange instead of bright amber */
-    --primary-light: #e6ccb2;
-    /* Lighter beige */
-    --secondary: #e8a598;
-    /* Soft dusty rose for contrast */
+    --primary: #f59e0b;
+    /* Restored Warm Amber for buttons/accents */
+    --primary-light: #fbbf24;
+    /* Restored lighter amber */
+    --secondary: #f43f5e;
+    /* Restored soft coral/rose */
     --bg-color: #faf8f5;
-    /* Very light creamy off-white/beige background */
+    /* Kept very light creamy off-white/beige background */
     --surface: #ffffff;
-    /* Clean white for cards to pop against the beige */
-    --surface-hover: #f5ebe0;
-    /* Soft beige hover state */
-    --text-main: #4a4036;
-    /* Deep grayish-brown for text */
-    --text-muted: #8b7d6b;
-    /* Softer grayish-brown */
-    --danger: #e28e8e;
-    /* Muted red */
-    --success: #88b49c;
-    /* Muted sage green */
-    --border-color: #ede0d4;
-    /* Soft beige border */
-    --nav-bg: rgba(250, 248, 245, 0.85);
-    /* Glass off-white/beige */
+    --surface-hover: #fef08a;
+    /* Restored soft bright yellow hover state */
+    --text-main: #451a03;
+    /* Restored deep warm brown text for higher contrast */
+    --text-muted: #78350f;
+    --danger: #ef4444;
+    /* Restored brighter red */
+    --success: #10b981;
+    /* Restored emerald green */
+    --border-color: #fde047;
+    /* Restored soft gold/yellow border */
+    --nav-bg: rgba(250, 248, 245, 0.95);
 }
 
 * {
@@ -100,10 +97,9 @@ body {
 
 /* Glass Card styling */
 .glass-card {
-    background: rgba(255, 255, 255, 0.9);
-    /* Mostly opaque white for clean look */
-    border: 1px solid rgba(237, 224, 212, 0.8);
-    /* Soft beige border */
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    /* Restored yellow border for contrast */
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -198,7 +194,8 @@ body {
 }
 
 .btn-icon:hover {
-    background: rgba(212, 163, 115, 0.1);
+    background: rgba(245, 158, 11, 0.1);
+    /* Restored amber hover */
 }
 
 .btn-icon.btn-sm {
@@ -345,7 +342,8 @@ body {
 
 .form-input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+    /* Restored amber focus ring */
 }
 
 .mb-3 {
@@ -379,9 +377,10 @@ body {
 }
 
 .btn-secondary {
-    background: rgba(237, 224, 212, 0.4);
+    background: rgba(250, 204, 21, 0.15);
+    /* Restored bright yellow tint */
     color: var(--primary);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(250, 204, 21, 0.3);
     border-radius: 12px;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
@@ -499,8 +498,9 @@ body {
 }
 
 .btn-chip {
-    background: rgba(237, 224, 212, 0.4);
-    border: 1px solid var(--border-color);
+    background: rgba(250, 204, 21, 0.15);
+    /* Restored bright yellow tint */
+    border: 1px solid rgba(250, 204, 21, 0.3);
     color: var(--text-main);
     padding: 8px 16px;
     border-radius: 20px;
@@ -521,9 +521,10 @@ body {
 }
 
 .badge-tag {
-    background: rgba(212, 163, 115, 0.15);
-    /* Beige tint */
-    color: #b5835a;
+    background: rgba(245, 158, 11, 0.15);
+    /* Restored Amber tint */
+    color: #d97706;
+    /* Restored Amber text */
 }
 
 .badge-level {

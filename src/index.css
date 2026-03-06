@@ -1,28 +1,28 @@
 :root {
-    --primary: #f59e0b;
-    /* Warm Amber */
-    --primary-light: #fbbf24;
-    /* Lighter amber/gold */
-    --secondary: #f43f5e;
-    /* Soft coral/rose for contrast */
-    --bg-color: #fffde7;
-    /* Soft creamy yellow background */
-    --surface: #fefbeb;
-    /* Slightly lighter surface for cards */
-    --surface-hover: #fef08a;
-    /* Hover state - soft bright yellow */
-    --text-main: #451a03;
-    /* Deep warm brown text */
-    --text-muted: #78350f;
-    /* Medium warm brown text */
-    --danger: #ef4444;
-    /* Red */
-    --success: #10b981;
-    /* Emerald green */
-    --border-color: #fde047;
-    /* Soft gold border */
-    --nav-bg: rgba(255, 253, 231, 0.85);
-    /* Glass soft yellow */
+    --primary: #d4a373;
+    /* Muted camel/beige-orange instead of bright amber */
+    --primary-light: #e6ccb2;
+    /* Lighter beige */
+    --secondary: #e8a598;
+    /* Soft dusty rose for contrast */
+    --bg-color: #faf8f5;
+    /* Very light creamy off-white/beige background */
+    --surface: #ffffff;
+    /* Clean white for cards to pop against the beige */
+    --surface-hover: #f5ebe0;
+    /* Soft beige hover state */
+    --text-main: #4a4036;
+    /* Deep grayish-brown for text */
+    --text-muted: #8b7d6b;
+    /* Softer grayish-brown */
+    --danger: #e28e8e;
+    /* Muted red */
+    --success: #88b49c;
+    /* Muted sage green */
+    --border-color: #ede0d4;
+    /* Soft beige border */
+    --nav-bg: rgba(250, 248, 245, 0.85);
+    /* Glass off-white/beige */
 }
 
 * {
@@ -100,10 +100,10 @@ body {
 
 /* Glass Card styling */
 .glass-card {
-    background: rgba(254, 252, 232, 0.85);
-    /* Slightly transparent light yellow */
-    border: 1px solid rgba(250, 204, 21, 0.2);
-    /* Soft yellow border */
+    background: rgba(255, 255, 255, 0.9);
+    /* Mostly opaque white for clean look */
+    border: 1px solid rgba(237, 224, 212, 0.8);
+    /* Soft beige border */
     border-radius: 16px;
     padding: 1.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -198,7 +198,7 @@ body {
 }
 
 .btn-icon:hover {
-    background: rgba(245, 158, 11, 0.1);
+    background: rgba(212, 163, 115, 0.1);
 }
 
 .btn-icon.btn-sm {
@@ -217,8 +217,8 @@ body {
 }
 
 .tag-form input {
-    background: rgba(254, 252, 232, 0.8);
-    border: 1px solid rgba(250, 204, 21, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
     color: var(--text-main);
     padding: 12px 16px;
     border-radius: 12px;
@@ -332,8 +332,8 @@ body {
 
 .form-input {
     width: 100%;
-    background: rgba(254, 252, 232, 0.8);
-    border: 1px solid rgba(250, 204, 21, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
     color: var(--text-main);
     padding: 12px 16px;
     border-radius: 12px;
@@ -344,8 +344,8 @@ body {
 }
 
 .form-input:focus {
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.2);
 }
 
 .mb-3 {
@@ -379,9 +379,9 @@ body {
 }
 
 .btn-secondary {
-    background: rgba(250, 204, 21, 0.15);
+    background: rgba(237, 224, 212, 0.4);
     color: var(--primary);
-    border: 1px solid rgba(250, 204, 21, 0.3);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
@@ -499,8 +499,8 @@ body {
 }
 
 .btn-chip {
-    background: rgba(250, 204, 21, 0.15);
-    border: 1px solid rgba(250, 204, 21, 0.3);
+    background: rgba(237, 224, 212, 0.4);
+    border: 1px solid var(--border-color);
     color: var(--text-main);
     padding: 8px 16px;
     border-radius: 20px;
@@ -521,9 +521,9 @@ body {
 }
 
 .badge-tag {
-    background: rgba(245, 158, 11, 0.15);
-    /* Amber tint */
-    color: #d97706;
+    background: rgba(212, 163, 115, 0.15);
+    /* Beige tint */
+    color: #b5835a;
 }
 
 .badge-level {

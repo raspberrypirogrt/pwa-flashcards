@@ -13,7 +13,7 @@ export default defineConfig({
         name: '記憶卡片',
         short_name: 'Flashcards',
         description: '輔助記憶互動卡片 App',
-        theme_color: '#ffffff',
+        theme_color: '#faf8f5',
         icons: [
           {
             src: 'pwa-192x192.png',

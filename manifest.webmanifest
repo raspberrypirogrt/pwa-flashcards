@@ -1,0 +1,1 @@
+{"name":"記憶卡片","short_name":"Flashcards","start_url":"/pwa-flashcards/","display":"standalone","background_color":"#ffffff","lang":"en","scope":"/pwa-flashcards/","description":"輔助記憶互動卡片 App","theme_color":"#faf8f5","icons":[{"src":"pwa-192x192.png","sizes":"192x192","type":"image/png"},{"src":"pwa-512x512.png","sizes":"512x512","type":"image/png"}]}

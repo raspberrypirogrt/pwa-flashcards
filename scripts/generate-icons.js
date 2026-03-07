@@ -13,6 +13,9 @@ async function generateIcons() {
 
     console.log('Generating PWA icons from:', sourceIcon);
 
+    // Ensure the output directory exists
+    fs.mkdirSync(publicDir, { recursive: true });
+
     try {
         // Generate pwa-192x192.png
         await sharp(sourceIcon)

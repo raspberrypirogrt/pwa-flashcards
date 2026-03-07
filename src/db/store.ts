@@ -56,17 +56,13 @@ export async function deleteTag(id: string): Promise<void> {
 // Cards
 export async function getCards(): Promise<Card[]> {
     const keys = await cardsStore.keys();
-    const cards: Card[] = [];
-    for (const key of keys) {
-        const item = await cardsStore.getItem<Card>(key);
-        if (item) cards.push(item);
-    }
-    return cards;
+    const items = await Promise.all(keys.map(k => cardsStore.getItem<Card>(k)));
+    return items.filter((c): c is Card => c !== null);
 }
 
 export async function getCardsByTag(tagId: string): Promise<Card[]> {
-    const allCards = await getCards();
-    return allCards.filter(c => c.tagId === tagId);
+    const all = await getCards();
+    return all.filter(c => c.tagId === tagId);
 }
 
 export async function addCard(card: Omit<Card, 'id' | 'createdAt'>): Promise<Card> {
@@ -102,3 +98,41 @@ export async function getUserStats(): Promise<UserStats> {
 export async function updateUserStats(stats: UserStats): Promise<void> {
     await statsStore.setItem('user', stats);
 }
+
+// ── Backup / Restore ──────────────────────────────────────────────────────────
+
+export interface BackupData {
+    version: 1;
+    exportedAt: number;
+    tags: Tag[];
+    cards: Card[];
+    stats: UserStats | null;
+}
+
+export async function exportAllData(): Promise<BackupData> {
+    const tags = await getTags();
+    const cards = await getCards();
+    const stats = await statsStore.getItem<UserStats>('user');
+    return { version: 1, exportedAt: Date.now(), tags, cards, stats };
+}
+
+export async function importAllData(data: BackupData): Promise<void> {
+    // Clear existing data
+    await tagsStore.clear();
+    await cardsStore.clear();
+    await statsStore.clear();
+
+    // Restore tags
+    for (const tag of data.tags) {
+        await tagsStore.setItem(tag.id, tag);
+    }
+    // Restore cards
+    for (const card of data.cards) {
+        await cardsStore.setItem(card.id, card);
+    }
+    // Restore stats
+    if (data.stats) {
+        await statsStore.setItem('user', data.stats);
+    }
+}
+

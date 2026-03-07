@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Home, ListTodo, PlusCircle, Layers } from 'lucide-react';
 import HomePage from './pages/HomePage';
@@ -31,6 +32,39 @@ function BottomNav() {
 }
 
 function App() {
+    useEffect(() => {
+        // ── iOS PWA: fix blank space after keyboard dismissal ─────────────────
+        // When the virtual keyboard hides, iOS doesn't always reset
+        // window.scrollY to 0, leaving a white gap at the bottom.
+        // We listen to visualViewport resize (fires on keyboard open/close)
+        // and force scroll back to origin.
+        const vv = window.visualViewport;
+
+        const syncHeight = () => {
+            // Update CSS var so .app-container can use it instead of 100dvh
+            const h = vv ? vv.height : window.innerHeight;
+            document.documentElement.style.setProperty('--app-height', `${h}px`);
+            // Kick scroll back to (0,0) with a small delay to let the
+            // browser finish its own resize animation first.
+            requestAnimationFrame(() => window.scrollTo(0, 0));
+        };
+
+        syncHeight();
+        if (vv) {
+            vv.addEventListener('resize', syncHeight);
+            vv.addEventListener('scroll', syncHeight);
+        }
+        window.addEventListener('resize', syncHeight);
+
+        return () => {
+            if (vv) {
+                vv.removeEventListener('resize', syncHeight);
+                vv.removeEventListener('scroll', syncHeight);
+            }
+            window.removeEventListener('resize', syncHeight);
+        };
+    }, []);
+
     return (
         <Router basename={import.meta.env.BASE_URL}>
             <div className="app-container">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getTags, getCards, updateCard, updateUserStats, getUserStats } from '../db/store';
 import { Tag, Card, UserStats } from '../db/schema';
-import { Layers, Plus, PartyPopper } from 'lucide-react';
+import { Layers, Plus, PartyPopper, Check } from 'lucide-react';
 import FlashcardReview from '../components/FlashcardReview';
 
 export default function TaskPage() {
@@ -12,6 +12,7 @@ export default function TaskPage() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [addCount, setAddCount] = useState(5);
     const [addTagId, setAddTagId] = useState<string>('');
+    const [toast, setToast] = useState('');
 
     useEffect(() => {
         loadData();
@@ -43,8 +44,9 @@ export default function TaskPage() {
         // Find warehouse cards for this tag
         const warehouseCards = allCards.filter(c => c.tagId === addTagId && c.level === 0);
         if (warehouseCards.length === 0) {
-            alert('這個標籤的倉庫已經沒有卡片了！');
             setShowAddModal(false);
+            setToast('這個標籤的倉庫已經沒有卡片了！');
+            setTimeout(() => setToast(''), 3000);
             return;
         }
 
@@ -69,14 +71,16 @@ export default function TaskPage() {
             await updateCard(card);
         }
 
-        // Update streaks if needed
+        // Count total unique study days: +1 only if today hasn't been counted yet
         if (userStatsUpdates.streak !== undefined) {
             const stats = await getUserStats();
             const todayString = new Date().toISOString().split('T')[0];
             if (stats.lastReviewDate !== todayString) {
+                // New study day — increment total
                 stats.streak += 1;
                 stats.lastReviewDate = todayString;
             }
+            // (No reset: we just count cumulative days, not consecutive)
             if (userStatsUpdates.totalGraduated) {
                 stats.totalGraduated += userStatsUpdates.totalGraduated;
             }
@@ -179,6 +183,9 @@ export default function TaskPage() {
                         </div>
                     </div>
                 </div>
+            )}
+            {toast && (
+                <div className="toast fade-in"><Check size={20} /> {toast}</div>
             )}
         </div>
     );

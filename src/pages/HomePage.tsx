@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getTags, getCards, addTag, deleteTag, updateTag, getUserStats } from '../db/store';
 import { Tag, Card, UserStats } from '../db/schema';
-import { Flame, CheckCircle, Tag as TagIcon, Plus, Edit2, Trash2, X } from 'lucide-react';
+import { BookOpen, CheckCircle, Tag as TagIcon, Plus, Edit2, Trash2, X } from 'lucide-react';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function HomePage() {
     const [tags, setTags] = useState<Tag[]>([]);
@@ -10,6 +11,7 @@ export default function HomePage() {
     const [isAddingTag, setIsAddingTag] = useState(false);
     const [newTagName, setNewTagName] = useState('');
     const [editingTag, setEditingTag] = useState<Tag | null>(null);
+    const [confirmDelete, setConfirmDelete] = useState<Tag | null>(null);
 
     useEffect(() => {
         let active = true;
@@ -60,13 +62,17 @@ export default function HomePage() {
         }
     };
 
-    const handleDeleteTag = async (id: string) => {
-        if (window.confirm('確定要刪除標籤及其所有關聯的卡片嗎？此操作無法還原。')) {
-            await deleteTag(id);
-            const data = await loadData();
-            setTags(data.tags);
-            setCards(data.cards);
-        }
+    const handleDeleteTag = async (tag: Tag) => {
+        setConfirmDelete(tag);
+    };
+
+    const confirmDeleteTag = async () => {
+        if (!confirmDelete) return;
+        await deleteTag(confirmDelete.id);
+        setConfirmDelete(null);
+        const data = await loadData();
+        setTags(data.tags);
+        setCards(data.cards);
     };
 
     // Stats computation
@@ -76,15 +82,24 @@ export default function HomePage() {
 
     return (
         <div className="home-page fade-in">
+            {confirmDelete && (
+                <ConfirmDialog
+                    message={`確定要刪除「${confirmDelete.name}」及其所有關聯的卡片嗎？\n此操作無法還原。`}
+                    confirmLabel="確定刪除"
+                    onConfirm={confirmDeleteTag}
+                    onCancel={() => setConfirmDelete(null)}
+                />
+            )}
+
             <header className="header">
                 <h1 className="text-gradient">記憶卡片</h1>
             </header>
 
             <section className="stats-section glass-card">
                 <div className="stat-box">
-                    <Flame size={32} color="var(--secondary)" />
+                    <BookOpen size={32} color="var(--secondary)" />
                     <div>
-                        <h3>連續學習</h3>
+                        <h3>已學習</h3>
                         <p className="stat-number">{stats.streak} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>天</span></p>
                     </div>
                 </div>
@@ -120,13 +135,12 @@ export default function HomePage() {
 
                 {/* Breakdown Lv1 - Lv7 */}
                 <div className="glass-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center', padding: '1rem' }}>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv1</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 1).length}</div></div>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv2</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 2).length}</div></div>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv3</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 3).length}</div></div>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv4</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 4).length}</div></div>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv5</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 5).length}</div></div>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv6</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 6).length}</div></div>
-                    <div><div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv7</div><div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === 7).length}</div></div>
+                    {[1, 2, 3, 4, 5, 6, 7].map(lv => (
+                        <div key={lv}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv{lv}</div>
+                            <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === lv).length}</div>
+                        </div>
+                    ))}
                 </div>
             </section>
 
@@ -165,7 +179,6 @@ export default function HomePage() {
                         const learning = tagCards.filter(c => c.level > 0 && c.level < 8).length;
                         const grad = tagCards.filter(c => c.level === 8).length;
 
-                        // 判斷是否為受保護的預設標籤（同名標籤只保護第一個）
                         const isProtected = ['通用英文', '專業英文'].includes(tag.name) &&
                             tags.findIndex(t => t.name === tag.name) === index;
 
@@ -182,7 +195,7 @@ export default function HomePage() {
                                             <Edit2 size={16} />
                                         </button>
                                         {!isProtected && (
-                                            <button className="btn-icon btn-sm danger" onClick={() => handleDeleteTag(tag.id)}>
+                                            <button className="btn-icon btn-sm danger" onClick={() => handleDeleteTag(tag)}>
                                                 <Trash2 size={16} color="var(--danger)" />
                                             </button>
                                         )}

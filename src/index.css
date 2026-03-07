@@ -30,6 +30,9 @@
 
 html {
     overscroll-behavior: none;
+    /* Prevent iOS body scroll that causes blank space after keyboard dismiss */
+    overflow: hidden;
+    height: 100%;
 }
 
 body {
@@ -38,18 +41,27 @@ body {
     color: var(--text-main);
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    overflow: hidden;
+    height: 100%;
 }
 
 .app-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
+    /* Use JS-synced --app-height = visualViewport.height.
+       Falls back to 100dvh if JS hasn't run yet.
+       This is the key fix for iOS keyboard blank-space bug. */
+    height: var(--app-height, 100dvh);
+    /* Prevent the container itself from scrolling */
+    overflow: hidden;
+    position: relative;
 }
 
 .content {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     padding: 1rem;
     padding-bottom: 80px;
     /* space for nav */
@@ -546,4 +558,284 @@ body {
 .badge-green {
     background: rgba(16, 185, 129, 0.15);
     color: #059669;
+}
+
+/* ─── KaTeX overflow containment ─────────────────────────────────────────── */
+
+/* Block math wrapper – used inside review cards */
+.katex-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    /* fine-tune scrollbar so it doesn't add visible bulk on mobile */
+    scrollbar-width: thin;
+}
+
+/* KaTeX itself respects max-width when the wrapper constrains it */
+.katex-wrap .katex,
+.katex-wrap .katex-display {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Inline math wrapper – used in deck list Q/A preview rows.
+   Keeps formula from stretching the row and bumping adjacent buttons. */
+.katex-inline {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    word-break: break-all;
+}
+
+/* ─── Level filter chips (DeckPage) ─────────────────────────────────────────── */
+
+.level-filter-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.level-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    background: transparent;
+    color: var(--text-muted);
+    transition: background 0.2s, color 0.2s;
+}
+
+.level-chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.level-chip-count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* ─── Backup / Restore buttons ───────────────────────────────────────────────── */
+.backup-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: var(--primary);
+    transition: background 0.2s, transform 0.15s;
+}
+
+.backup-btn:hover {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.backup-btn:active {
+    transform: scale(0.96);
+}
+
+/* ─── Image Compression UI ───────────────────────────────────────────────────── */
+
+.compress-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+    background: rgba(245, 158, 11, 0.06);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 12px;
+}
+
+.compress-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.compress-chips {
+    display: flex;
+    gap: 6px;
+}
+
+.compress-chip {
+    flex: 1;
+    padding: 6px 0;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: transparent;
+    color: var(--text-muted);
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.compress-chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.compress-chip:active {
+    transform: scale(0.95);
+}
+
+.compress-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-height: 1em;
+}
+
+/* Processing spinner */
+.img-processing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 1.2rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}
+
+/* Size info badge on image preview */
+.img-size-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* ─── Batch Import Modal ──────────────────────────────────────────────────────── */
+
+.batch-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    background: rgba(245, 158, 11, 0.07);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+.batch-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+.batch-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.batch-stat.ok {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+}
+
+.batch-stat.err {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+/* Scrollable preview table */
+.batch-preview-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.batch-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+}
+
+.batch-table th {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 6px 10px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    white-space: nowrap;
+}
+
+.batch-table td {
+    padding: 5px 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.batch-table tr.row-error td {
+    background: rgba(239, 68, 68, 0.06);
+}
+
+.batch-table tr.row-warning td {
+    background: rgba(245, 158, 11, 0.06);
+}
+
+.batch-table td.mono {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
 }

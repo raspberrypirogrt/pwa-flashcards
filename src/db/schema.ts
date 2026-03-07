@@ -24,6 +24,9 @@ export interface Card {
     backMath?: string;
     backAudio?: string;
 
+    // Searchable notes / keywords (e.g. chapter name, topic)
+    notes?: string;
+
     createdAt: number;
     nextReviewDate: number; // timestamp
 }

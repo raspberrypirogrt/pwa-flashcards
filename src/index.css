@@ -839,3 +839,214 @@ body {
     font-size: 0.72rem;
     color: var(--text-muted);
 }
+
+/* ── HomePage Modern Dashboard Redesign ── */
+
+.daily-hero {
+    margin-bottom: 1.5rem;
+}
+
+.hero-card {
+    border-radius: 20px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4), 0 8px 10px -6px rgba(245, 158, 11, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.5);
+}
+
+.hero-card.action-needed {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.hero-card.all-clear {
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+}
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+    position: relative;
+    gap: 12px;
+}
+
+.hero-icon-pulse {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 16px;
+    border-radius: 50%;
+    backdrop-filter: blur(8px);
+    animation: pulse-soft 2s infinite;
+}
+
+@keyframes pulse-soft {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+.hero-text h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero-text p {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.hero-text strong {
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 8px;
+    margin: 0 4px;
+}
+
+.btn-hero {
+    margin-top: 8px;
+    background: white;
+    color: #f59e0b;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-hero:active {
+    transform: scale(0.95);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.stat-item {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+}
+
+.stat-item .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-item .stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+}
+
+.stat-item .stat-value small {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.progress-dashboard {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.progress-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pg-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pg-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    background: rgba(250, 204, 21, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.progress-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+    margin: 0.5rem 0;
+}
+
+.srs-levels-bar {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.srs-level-pill {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    border-radius: 8px;
+    padding: 8px 0;
+    transition: all 0.2s;
+}
+
+.srs-level-pill:hover {
+    background: rgba(250, 204, 21, 0.15);
+    transform: translateY(-2px);
+}
+
+.srs-level-pill .lv-name {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.srs-level-pill .lv-count {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+}

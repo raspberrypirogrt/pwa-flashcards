@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getTags, getCards, addTag, deleteTag, updateTag, getUserStats } from '../db/store';
 import { Tag, Card, UserStats } from '../db/schema';
 import { BookOpen, CheckCircle, Tag as TagIcon, Plus, Edit2, Trash2, X } from 'lucide-react';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function HomePage() {
+    const navigate = useNavigate();
     const [tags, setTags] = useState<Tag[]>([]);
     const [cards, setCards] = useState<Card[]>([]);
     const [stats, setStats] = useState<UserStats>({ streak: 0, lastReviewDate: '', totalGraduated: 0 });
@@ -95,52 +97,75 @@ export default function HomePage() {
                 <h1 className="text-gradient">記憶卡片</h1>
             </header>
 
-            <section className="stats-section glass-card">
-                <div className="stat-box">
-                    <BookOpen size={32} color="var(--secondary)" />
-                    <div>
-                        <h3>已學習</h3>
-                        <p className="stat-number">{stats.streak} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>天</span></p>
-                    </div>
-                </div>
-                <div className="stat-box">
-                    <CheckCircle size={32} color="var(--success)" />
-                    <div>
-                        <h3>今日待複習</h3>
-                        <p className="stat-number">{cardsDueToday} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>張</span></p>
+            {/* Daily Review Hero / Status Dashboard */}
+            <section className="daily-hero">
+                <div className={`hero-card ${cardsDueToday > 0 ? 'action-needed' : 'all-clear'}`}>
+                    <div className="hero-content">
+                        {cardsDueToday > 0 ? (
+                            <>
+                                <div className="hero-icon-pulse"><BookOpen size={40} color="white" /></div>
+                                <div className="hero-text">
+                                    <h2>今日待複習</h2>
+                                    <p>有 <strong>{cardsDueToday}</strong> 張卡片等著你</p>
+                                </div>
+                                <button className="btn-hero" onClick={() => navigate('/task')}>開始複習</button>
+                            </>
+                        ) : (
+                            <>
+                                <CheckCircle size={40} color="white" />
+                                <div className="hero-text">
+                                    <h2>今日任務完成！</h2>
+                                    <p>太棒了，所有卡片都已複習完畢</p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
 
+            {/* General Overall Stats */}
+            <section className="stats-grid mb-4">
+                <div className="glass-card stat-item">
+                    <span className="stat-label">已學習天數</span>
+                    <span className="stat-value">{stats.streak} <small>天</small></span>
+                </div>
+                <div className="glass-card stat-item">
+                    <span className="stat-label">累積畢業數</span>
+                    <span className="stat-value" style={{ color: 'var(--success)' }}>{cards.filter(c => c.level === 8).length} <small>張</small></span>
+                </div>
+                <div className="glass-card stat-item">
+                    <span className="stat-label">總卡片數</span>
+                    <span className="stat-value">{cards.length} <small>張</small></span>
+                </div>
+            </section>
+
+            {/* Detailed Progress Dashboard */}
             <section className="tags-section mb-4">
                 <div className="section-header">
-                    <h2>📊 統計</h2>
+                    <h2>📊 學習進度</h2>
                 </div>
 
-                {/* Main 3 Categories */}
-                <div className="glass-card mb-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', textAlign: 'center', padding: '1.5rem' }}>
-                    <div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '4px' }}>倉庫</div>
-                        <div style={{ fontWeight: 'bold', fontSize: '1.8rem', color: 'var(--text-main)' }}>{cards.filter(c => c.level === 0).length}</div>
+                <div className="glass-card progress-dashboard">
+                    <div className="progress-group">
+                        <div className="pg-label">倉庫預備中</div>
+                        <div className="pg-value">{cards.filter(c => c.level === 0).length}</div>
                     </div>
-                    <div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '4px' }}>學習中</div>
-                        <div style={{ fontWeight: 'bold', fontSize: '1.8rem', color: 'var(--primary-light)' }}>{cards.filter(c => c.level > 0 && c.level < 8).length}</div>
-                    </div>
-                    <div>
-                        <div style={{ fontSize: '0.9rem', color: 'var(--success)', marginBottom: '4px' }}>已畢業</div>
-                        <div style={{ fontWeight: 'bold', fontSize: '1.8rem', color: 'var(--success)' }}>{cards.filter(c => c.level === 8).length}</div>
-                    </div>
-                </div>
+                    <div className="progress-divider" />
 
-                {/* Breakdown Lv1 - Lv7 */}
-                <div className="glass-card" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center', padding: '1rem' }}>
-                    {[1, 2, 3, 4, 5, 6, 7].map(lv => (
-                        <div key={lv}>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lv{lv}</div>
-                            <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>{cards.filter(c => c.level === lv).length}</div>
+                    <div className="progress-main">
+                        <div className="pg-label" style={{ marginBottom: '12px' }}>SRS 學習階段分布</div>
+                        <div className="srs-levels-bar">
+                            {[1, 2, 3, 4, 5, 6, 7].map(lv => {
+                                const count = cards.filter(c => c.level === lv).length;
+                                return (
+                                    <div key={lv} className="srs-level-pill" title={`Level ${lv}: ${count}張`}>
+                                        <span className="lv-name">Lv{lv}</span>
+                                        <span className="lv-count" style={{ opacity: count > 0 ? 1 : 0.3 }}>{count}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </section>
 

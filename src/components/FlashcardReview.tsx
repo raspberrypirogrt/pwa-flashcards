@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useAnimation } from 'framer-motion';
 import { Card, Tag, LEVEL_INTERVALS_DAYS } from '../db/schema';
+import { updateCard } from '../db/store';
 import { X, Volume2, FlipHorizontal } from 'lucide-react';
 import Latex from 'react-latex-next';
 import 'katex/dist/katex.min.css';
@@ -52,16 +53,17 @@ export default function FlashcardReview({ queue, tag, onComplete, onExit }: Flas
         const modifiedCard = sessionCards.get(currentCard.id)!;
 
         let appended = false;
+        let newGraduated = graduatedThisSession;
 
         if (direction === 'left') {
-            // Wrong context
+            // Wrong — reset to Lv1 and re-queue for today
             modifiedCard.level = 1;
             modifiedCard.nextReviewDate = Date.now();
             // Push it to the back of the local queue so we see it again today
             setLocalQueue(prev => [...prev, currentCard]);
             appended = true;
         } else {
-            // Right context
+            // Right — advance level
             modifiedCard.level = (modifiedCard.level + 1) as Card['level'];
 
             const interval = LEVEL_INTERVALS_DAYS[modifiedCard.level];
@@ -71,9 +73,13 @@ export default function FlashcardReview({ queue, tag, onComplete, onExit }: Flas
 
             if (modifiedCard.level > 7) {
                 modifiedCard.level = 8; // Graduated
-                setGraduatedThisSession(prev => prev + 1);
+                newGraduated += 1;
+                setGraduatedThisSession(newGraduated);
             }
         }
+
+        // ── Persist immediately so progress survives mid-session exits ──────
+        await updateCard(modifiedCard);
 
         setIsFlipped(false);
         rotateToFlip.set({ rotateY: 0 });
@@ -83,7 +89,7 @@ export default function FlashcardReview({ queue, tag, onComplete, onExit }: Flas
         const targetLength = localQueue.length + (appended ? 1 : 0);
 
         if (nextIdx >= targetLength) {
-            onComplete(Array.from(sessionCards.values()), { streak: 1, totalGraduated: graduatedThisSession });
+            onComplete(Array.from(sessionCards.values()), { streak: 1, totalGraduated: newGraduated });
             return;
         }
 

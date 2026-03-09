@@ -65,11 +65,8 @@ export default function TaskPage() {
         loadData();
     };
 
-    const handleSessionComplete = async (reviewedCards: Card[], userStatsUpdates: Partial<UserStats>) => {
-        // Process reviews
-        for (const card of reviewedCards) {
-            await updateCard(card);
-        }
+    const handleSessionComplete = async (_reviewedCards: Card[], userStatsUpdates: Partial<UserStats>) => {
+        // Cards are already persisted in FlashcardReview on each swipe; no need to re-save here.
 
         // Count total unique study days: +1 only if today hasn't been counted yet
         if (userStatsUpdates.streak !== undefined) {

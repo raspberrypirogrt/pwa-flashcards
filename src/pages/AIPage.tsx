@@ -144,7 +144,7 @@ function AICard({ card, onChange, onToggleSelect }: {
 export default function AIPage() {
     // Settings
     const [apiKey, setApiKey] = useState('');
-    const [model, setModel] = useState<GeminiModel>('gemini-1.5-flash');
+    const [model, setModel] = useState<GeminiModel>('gemini-2.0-flash');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [apiKeySaved, setApiKeySaved] = useState(false);
 
@@ -444,13 +444,13 @@ export default function AIPage() {
                         {/* Model */}
                         <label className="form-label">模型選擇</label>
                         <div className="compress-chips mb-4">
-                            {(['gemini-1.5-flash', 'gemini-1.5-pro'] as GeminiModel[]).map(m => (
+                            {(['gemini-2.0-flash', 'gemini-2.0-pro-exp'] as GeminiModel[]).map(m => (
                                 <button
                                     key={m}
                                     className={`compress-chip ${model === m ? 'active' : ''}`}
                                     onClick={() => handleModelChange(m)}
                                 >
-                                    {m === 'gemini-1.5-flash' ? '⚡ Flash（快速）' : '🧠 Pro（精準）'}
+                                    {m === 'gemini-2.0-flash' ? '⚡ 2.0 Flash（快速）' : '🧠 2.0 Pro（精準）'}
                                 </button>
                             ))}
                         </div>

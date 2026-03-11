@@ -190,7 +190,7 @@ export default function FlashcardReview({ queue, tag, onComplete, onExit }: Flas
 
                             <div className="card-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', overflowY: 'auto' }}>
                                 {currentCard.frontImage && <img src={currentCard.frontImage} alt="front" style={{ maxHeight: '200px', borderRadius: '12px', marginBottom: '1rem' }} />}
-                                {currentCard.frontText && <p style={{ fontSize: '1.5rem', fontWeight: '600' }}>{currentCard.frontText}</p>}
+                                {currentCard.frontText && <div style={{ fontSize: '1.5rem', fontWeight: '600', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><Latex>{currentCard.frontText}</Latex></div>}
                                 {currentCard.frontMath && <div className="katex-wrap" style={{ fontSize: '1.25rem', marginTop: '1rem', width: '100%' }}><Latex>{wrapLatex(currentCard.frontMath)}</Latex></div>}
 
                                 {/* Audio Button */}
@@ -218,7 +218,7 @@ export default function FlashcardReview({ queue, tag, onComplete, onExit }: Flas
 
                             <div className="card-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', overflowY: 'auto' }}>
                                 {currentCard.backImage && <img src={currentCard.backImage} alt="back" style={{ maxHeight: '200px', borderRadius: '12px', marginBottom: '1rem' }} />}
-                                {currentCard.backText && <p style={{ fontSize: '1.25rem' }}>{currentCard.backText}</p>}
+                                {currentCard.backText && <div style={{ fontSize: '1.25rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}><Latex>{currentCard.backText}</Latex></div>}
                                 {currentCard.backMath && <div className="katex-wrap" style={{ fontSize: '1.25rem', marginTop: '1rem', width: '100%' }}><Latex>{wrapLatex(currentCard.backMath)}</Latex></div>}
                             </div>
 

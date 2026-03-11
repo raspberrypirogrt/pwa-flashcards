@@ -315,15 +315,15 @@ export default function DeckPage() {
                                                         </div>
                                                     ) : (
                                                         <div className="card-preview" style={{ minWidth: 0 }}>
-                                                            <p style={{ fontWeight: '500', marginBottom: '4px', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                                                            <p style={{ fontWeight: '500', marginBottom: '4px', wordBreak: 'break-word', overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
                                                                 <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginRight: '6px' }}>Q:</span>
-                                                                {card.frontText && card.frontText}
+                                                                {card.frontText && <Latex>{card.frontText}</Latex>}
                                                                 {card.frontMath && <span className="katex-inline" style={{ marginLeft: '4px' }}><Latex>{wrapLatex(card.frontMath)}</Latex></span>}
                                                                 {card.frontImage && <ImageIcon size={16} style={{ marginLeft: '4px', color: 'var(--text-muted)', verticalAlign: 'middle' }} />}
                                                             </p>
-                                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                                                            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', wordBreak: 'break-word', overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
                                                                 <span style={{ fontSize: '0.8rem', marginRight: '6px' }}>A:</span>
-                                                                {card.backText && card.backText}
+                                                                {card.backText && <Latex>{card.backText}</Latex>}
                                                                 {card.backMath && <span className="katex-inline" style={{ marginLeft: '4px' }}><Latex>{wrapLatex(card.backMath)}</Latex></span>}
                                                                 {card.backImage && <ImageIcon size={16} style={{ marginLeft: '4px', verticalAlign: 'middle' }} />}
                                                             </p>

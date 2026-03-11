@@ -15,26 +15,26 @@ function buildSystemPrompt(deckName: string, userPrompt: string): string {
     return `你是一個專業的學習字卡生成助手。
 牌組名稱：「${deckName}」
 
-${userPrompt ? `使用者提示：${userPrompt}\n\n` : ''}任務規則：
-1. 根據使用者提供的圖片或 PDF 文件內容，生成適合作為字卡的知識點。
+${userPrompt ? `使用者補充提示：${userPrompt}\n\n` : ''}任務規則：
+1. 根據使用者提供的圖片或 PDF 文件內容，生成適合作為字卡的知識點。一個概念一張，不要把多個定理塞進同一張。
 2. 每張字卡有正面（問題/概念）和背面（答案/解釋）。
-3. 文字請放在 frontText / backText 欄位。
-4. 數學公式（LaTeX）請放在 frontMath / backMath 欄位（不要加 $$ 或 $ 符號，只放純 LaTeX 源碼）。
-5. 每個欄位都是選填，但每張卡至少要有 frontText 或 frontMath 之一。
-6. 回傳格式必須是純 JSON 陣列，不要有任何說明文字、markdown code block 或其他內容。
+3. frontText / backText：文字欄位，可直接嵌入行內 LaTeX，格式為 $formula$，例如「質量 $m$ 與加速度 $a$ 的乘積」。
+4. frontMath / backMath：整行獨立展示的公式欄位，直接寫 LaTeX 源碼，不要加 $ 符號。留空時請填 null 而非空字串。
+5. 每張卡至少要有 frontText 或 frontMath 其中一個有值，其他欄位若無內容請填 null。
+6. 回傳純 JSON 陣列，不要任何說明文字。
 
 回傳格式範例：
 [
   {
     "frontText": "牛頓第二運動定律",
-    "frontMath": "",
-    "backText": "物體所受合力等於質量乘以加速度",
-    "backMath": "F = ma"
+    "frontMath": null,
+    "backText": "合力等於質量乘以加速度，$F = ma$",
+    "backMath": null
   },
   {
-    "frontText": "積分的定義",
-    "frontMath": "",
-    "backText": "函數曲線與 x 軸之間的有向面積",
+    "frontText": "定積分的定義",
+    "frontMath": null,
+    "backText": "函數曲線與 $x$ 軸之間的有向面積",
     "backMath": "\\int_a^b f(x)\\,dx"
   }
 ]`;
@@ -93,7 +93,6 @@ export async function generateFlashcards(options: GenerateOptions): Promise<Gene
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const genModel = genAI.getGenerativeModel({ model });
 
     const systemPrompt = buildSystemPrompt(deckName, userPrompt);
 
@@ -111,22 +110,62 @@ export async function generateFlashcards(options: GenerateOptions): Promise<Gene
         parts.push(pdfPart);
     }
 
-    const result = await genModel.generateContent({ contents: [{ role: 'user', parts }] });
-    const text = result.response.text().trim();
+    const requestBody = { contents: [{ role: 'user' as const, parts }] };
 
-    // Strip markdown code block if model wraps in ```json ... ```
-    const jsonText = text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
+    // Try v1beta first, then v1 — different models live on different API versions
+    let text = '';
+    const apiVersions = ['v1beta', 'v1'] as const;
+    let lastError: Error | null = null;
 
-    let cards: GeneratedCard[];
-    try {
-        cards = JSON.parse(jsonText);
-    } catch {
-        throw new Error(`AI 回應格式有誤，無法解析。原始回應：\n${text.slice(0, 300)}`);
+    for (const apiVer of apiVersions) {
+        try {
+            const genModel = genAI.getGenerativeModel({ model }, { apiVersion: apiVer });
+            const result = await genModel.generateContent(requestBody);
+            text = result.response.text().trim();
+            lastError = null;
+            break;
+        } catch (err: unknown) {
+            lastError = err instanceof Error ? err : new Error(String(err));
+            // Only retry on 404 (model not found for this API version)
+            if (lastError.message.includes('404')) {
+                continue;
+            }
+            // Non-404 errors (quota, auth, etc.) — throw immediately
+            throw lastError;
+        }
     }
 
-    if (!Array.isArray(cards) || cards.length === 0) {
+    if (lastError) {
+        throw lastError;
+    }
+
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(text);
+    } catch {
+        // Fallback: try to extract JSON array from the text
+        const match = text.match(/(\[\s*\{[\s\S]*\}\s*\])/);
+        if (!match) {
+            throw new Error(`AI 回應格式有誤，無法解析。原始回應：\n${text.slice(0, 400)}`);
+        }
+        try {
+            parsed = JSON.parse(match[1]);
+        } catch {
+            throw new Error(`AI 回應格式有誤，無法解析。原始回應：\n${text.slice(0, 400)}`);
+        }
+    }
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
         throw new Error('AI 未生成任何字卡，請嘗試調整提示詞或換一個檔案');
     }
+
+    // Normalize: convert empty strings to undefined
+    const cards: GeneratedCard[] = (parsed as GeneratedCard[]).map(c => ({
+        frontText: c.frontText || undefined,
+        frontMath: c.frontMath || undefined,
+        backText: c.backText || undefined,
+        backMath: c.backMath || undefined,
+    }));
 
     return cards;
 }

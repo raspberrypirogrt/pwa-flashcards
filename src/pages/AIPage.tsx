@@ -14,7 +14,7 @@ import {
     getModel, setModel as saveModel,
     getPresets,
     addPreset, updatePreset, deletePreset,
-    PromptPreset, GeminiModel
+    PromptPreset, GeminiModel, GEMINI_MODELS
 } from '../utils/aiStorage';
 import { generateFlashcards, GeneratedCard } from '../utils/gemini';
 import { wrapLatex } from '../utils/math';
@@ -28,9 +28,27 @@ interface PreviewCard extends GeneratedCard {
     isEditing: boolean;
 }
 
-// ── Sub-components ─────────────────────────────────────────────────────────────
+/** Card face renderer — renders text via Latex so $...$ inline formulas work */
+function CardFaceContent({ text, math }: { text?: string; math?: string }) {
+    const hasContent = text || math;
+    if (!hasContent) return <p className="ai-card-empty">(無內容)</p>;
+    return (
+        <div className="ai-face-content">
+            {text && (
+                <div className="ai-card-text">
+                    <Latex>{text}</Latex>
+                </div>
+            )}
+            {math && (
+                <div className="ai-math-block">
+                    <Latex>{wrapLatex(math)}</Latex>
+                </div>
+            )}
+        </div>
+    );
+}
 
-/** Flip card for preview */
+/** Preview card: fade-toggle front/back (fixes variable-height issue) */
 function AICard({ card, onChange, onToggleSelect }: {
     card: PreviewCard;
     onChange: (updated: Partial<GeneratedCard>) => void;
@@ -40,6 +58,14 @@ function AICard({ card, onChange, onToggleSelect }: {
     const [localFrontMath, setLocalFrontMath] = useState(card.frontMath ?? '');
     const [localBackText, setLocalBackText] = useState(card.backText ?? '');
     const [localBackMath, setLocalBackMath] = useState(card.backMath ?? '');
+
+    // Sync local state when card changes externally (after save)
+    useEffect(() => {
+        setLocalFrontText(card.frontText ?? '');
+        setLocalFrontMath(card.frontMath ?? '');
+        setLocalBackText(card.backText ?? '');
+        setLocalBackMath(card.backMath ?? '');
+    }, [card.frontText, card.frontMath, card.backText, card.backMath]);
 
     const handleSaveEdit = () => {
         onChange({
@@ -66,33 +92,35 @@ function AICard({ card, onChange, onToggleSelect }: {
             {card.isEditing ? (
                 /* ── Edit Mode ── */
                 <div className="ai-card-edit">
-                    <p className="ai-edit-label">正面</p>
+                    <p className="ai-edit-label">正面文字 <span className="ai-edit-hint">（支援行內公式：$formula$）</span></p>
                     <textarea
                         className="form-input mb-2"
-                        rows={2}
-                        placeholder="正面文字"
+                        rows={3}
+                        placeholder="例：力學能守恆定律，$E_k + E_p = \text{const}$"
                         value={localFrontText}
                         onChange={e => setLocalFrontText(e.target.value)}
                     />
+                    <p className="ai-edit-label">正面獨立公式 <span className="ai-edit-hint">（整行 LaTeX，不含 $）</span></p>
                     <textarea
                         className="form-input font-mono mb-3"
                         rows={2}
-                        placeholder="正面 LaTeX（不含 $）"
+                        placeholder="例：\\int_a^b f(x)\\,dx"
                         value={localFrontMath}
                         onChange={e => setLocalFrontMath(e.target.value)}
                     />
-                    <p className="ai-edit-label">背面</p>
+                    <p className="ai-edit-label">背面文字 <span className="ai-edit-hint">（支援行內公式：$formula$）</span></p>
                     <textarea
                         className="form-input mb-2"
-                        rows={2}
-                        placeholder="背面文字"
+                        rows={3}
+                        placeholder="例：動能 $E_k = \\frac{1}{2}mv^2$，位能 $E_p = mgh$"
                         value={localBackText}
                         onChange={e => setLocalBackText(e.target.value)}
                     />
+                    <p className="ai-edit-label">背面獨立公式 <span className="ai-edit-hint">（整行 LaTeX，不含 $）</span></p>
                     <textarea
                         className="form-input font-mono mb-3"
                         rows={2}
-                        placeholder="背面 LaTeX（不含 $）"
+                        placeholder="例：F = ma"
                         value={localBackMath}
                         onChange={e => setLocalBackMath(e.target.value)}
                     />
@@ -101,38 +129,20 @@ function AICard({ card, onChange, onToggleSelect }: {
                     </button>
                 </div>
             ) : (
-                /* ── Preview / Flip Mode ── */
-                <div className={`ai-flip-card ${card.isFlipped ? 'flipped' : ''}`} onClick={() => onChange({})}>
-                    <div className="ai-flip-inner">
-                        {/* Front */}
-                        <div className="ai-flip-face ai-flip-front">
-                            <span className="ai-face-label">正面</span>
-                            {card.frontText && <p className="ai-card-text">{card.frontText}</p>}
-                            {card.frontMath && (
-                                <div className="math-preview">
-                                    <Latex>{wrapLatex(card.frontMath)}</Latex>
-                                </div>
-                            )}
-                            {!card.frontText && !card.frontMath && (
-                                <p className="ai-card-empty">（無內容）</p>
-                            )}
-                            <span className="ai-flip-hint">點擊翻面</span>
-                        </div>
-                        {/* Back */}
-                        <div className="ai-flip-face ai-flip-back">
-                            <span className="ai-face-label">背面</span>
-                            {card.backText && <p className="ai-card-text">{card.backText}</p>}
-                            {card.backMath && (
-                                <div className="math-preview">
-                                    <Latex>{wrapLatex(card.backMath)}</Latex>
-                                </div>
-                            )}
-                            {!card.backText && !card.backMath && (
-                                <p className="ai-card-empty">（無內容）</p>
-                            )}
-                            <span className="ai-flip-hint">點擊翻回</span>
-                        </div>
+                /* ── Preview Mode (fade toggle) ── */
+                <div className="ai-card-preview" onClick={() => onChange({})}>
+                    {/* Face label + hint */}
+                    <div className="ai-face-header">
+                        <span className={`ai-face-badge ${card.isFlipped ? 'back' : 'front'}`}>
+                            {card.isFlipped ? '背面' : '正面'}
+                        </span>
+                        <span className="ai-flip-hint">點擊切換</span>
                     </div>
+                    {/* Content */}
+                    <CardFaceContent
+                        text={card.isFlipped ? card.backText : card.frontText}
+                        math={card.isFlipped ? card.backMath : card.frontMath}
+                    />
                 </div>
             )}
         </div>
@@ -144,7 +154,7 @@ function AICard({ card, onChange, onToggleSelect }: {
 export default function AIPage() {
     // Settings
     const [apiKey, setApiKey] = useState('');
-    const [model, setModel] = useState<GeminiModel>('gemini-2.0-flash');
+    const [model, setModel] = useState<GeminiModel>(getModel());
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [apiKeySaved, setApiKeySaved] = useState(false);
 
@@ -208,6 +218,7 @@ export default function AIPage() {
         setModel(m);
         saveModel(m);
     };
+
 
     // ── Presets ───────────────────────────────────────────────────────────────
 
@@ -444,13 +455,13 @@ export default function AIPage() {
                         {/* Model */}
                         <label className="form-label">模型選擇</label>
                         <div className="compress-chips mb-4">
-                            {(['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3-flash'] as GeminiModel[]).map(m => (
+                            {GEMINI_MODELS.map(m => (
                                 <button
-                                    key={m}
-                                    className={`compress-chip ${model === m ? 'active' : ''}`}
-                                    onClick={() => handleModelChange(m)}
+                                    key={m.id}
+                                    className={`compress-chip ${model === m.id ? 'active' : ''}`}
+                                    onClick={() => handleModelChange(m.id)}
                                 >
-                                    {m === 'gemini-2.0-flash' ? '⚡ 2.0 Flash' : m === 'gemini-2.5-flash' ? '✨ 2.5 Flash' : '🚀 3.0 Flash'}
+                                    {m.label}
                                 </button>
                             ))}
                         </div>

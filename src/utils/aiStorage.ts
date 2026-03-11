@@ -4,7 +4,15 @@ const KEY_API_KEY = 'ai_gemini_api_key';
 const KEY_MODEL = 'ai_gemini_model';
 const KEY_PRESETS = 'ai_gemini_presets';
 
-export type GeminiModel = 'gemini-2.0-flash' | 'gemini-2.5-flash' | 'gemini-3-flash';
+export type GeminiModel = 'gemini-2.5-flash' | 'gemini-3-flash-preview' | 'gemini-3.1-flash-lite-preview';
+
+export const GEMINI_MODELS: { id: GeminiModel; label: string }[] = [
+    { id: 'gemini-2.5-flash', label: '⚡ 2.5 Flash' },
+    { id: 'gemini-3-flash-preview', label: '🚀 3.0 Flash' },
+    { id: 'gemini-3.1-flash-lite-preview', label: '💡 3.1 Flash Lite' },
+];
+
+export const DEFAULT_MODEL: GeminiModel = 'gemini-3-flash-preview';
 
 export interface PromptPreset {
     id: string;
@@ -25,9 +33,9 @@ export function setApiKey(key: string): void {
 // ── Model ──────────────────────────────────────────────────────────────────────
 
 export function getModel(): GeminiModel {
-    const stored = localStorage.getItem(KEY_MODEL);
-    if (stored === 'gemini-2.0-flash' || stored === 'gemini-2.5-flash' || stored === 'gemini-3-flash') return stored;
-    return 'gemini-2.0-flash';
+    const stored = localStorage.getItem(KEY_MODEL) as GeminiModel | null;
+    if (stored && GEMINI_MODELS.some(m => m.id === stored)) return stored;
+    return DEFAULT_MODEL;
 }
 
 export function setModel(model: GeminiModel): void {

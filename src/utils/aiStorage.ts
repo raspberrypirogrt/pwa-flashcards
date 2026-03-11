@@ -4,7 +4,7 @@ const KEY_API_KEY = 'ai_gemini_api_key';
 const KEY_MODEL = 'ai_gemini_model';
 const KEY_PRESETS = 'ai_gemini_presets';
 
-export type GeminiModel = 'gemini-2.0-flash' | 'gemini-2.0-pro-exp';
+export type GeminiModel = 'gemini-2.0-flash' | 'gemini-2.5-flash' | 'gemini-3-flash';
 
 export interface PromptPreset {
     id: string;
@@ -26,7 +26,7 @@ export function setApiKey(key: string): void {
 
 export function getModel(): GeminiModel {
     const stored = localStorage.getItem(KEY_MODEL);
-    if (stored === 'gemini-2.0-flash' || stored === 'gemini-2.0-pro-exp') return stored;
+    if (stored === 'gemini-2.0-flash' || stored === 'gemini-2.5-flash' || stored === 'gemini-3-flash') return stored;
     return 'gemini-2.0-flash';
 }
 

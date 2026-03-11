@@ -444,13 +444,13 @@ export default function AIPage() {
                         {/* Model */}
                         <label className="form-label">模型選擇</label>
                         <div className="compress-chips mb-4">
-                            {(['gemini-2.0-flash', 'gemini-2.0-pro-exp'] as GeminiModel[]).map(m => (
+                            {(['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3-flash'] as GeminiModel[]).map(m => (
                                 <button
                                     key={m}
                                     className={`compress-chip ${model === m ? 'active' : ''}`}
                                     onClick={() => handleModelChange(m)}
                                 >
-                                    {m === 'gemini-2.0-flash' ? '⚡ 2.0 Flash（快速）' : '🧠 2.0 Pro（精準）'}
+                                    {m === 'gemini-2.0-flash' ? '⚡ 2.0 Flash' : m === 'gemini-2.5-flash' ? '✨ 2.5 Flash' : '🚀 3.0 Flash'}
                                 </button>
                             ))}
                         </div>

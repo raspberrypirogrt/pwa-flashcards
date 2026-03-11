@@ -1,18 +1,20 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home, ListTodo, PlusCircle, Layers } from 'lucide-react';
+import { Home, ListTodo, PlusCircle, Layers, Sparkles } from 'lucide-react';
 import HomePage from './pages/HomePage';
 import TaskPage from './pages/TaskPage';
 import AddCardPage from './pages/AddCardPage';
 import DeckPage from './pages/DeckPage';
+import AIPage from './pages/AIPage';
 
 function BottomNav() {
     const location = useLocation();
     const tabs = [
-        { path: '/', icon: <Home size={24} />, label: '首頁' },
-        { path: '/task', icon: <ListTodo size={24} />, label: '任務' },
-        { path: '/add', icon: <PlusCircle size={24} />, label: '新增' },
-        { path: '/deck', icon: <Layers size={24} />, label: '牌組' },
+        { path: '/', icon: <Home size={22} />, label: '首頁' },
+        { path: '/task', icon: <ListTodo size={22} />, label: '任務' },
+        { path: '/add', icon: <PlusCircle size={22} />, label: '新增' },
+        { path: '/deck', icon: <Layers size={22} />, label: '牌組' },
+        { path: '/ai', icon: <Sparkles size={22} />, label: 'AI生成' },
     ];
 
     return (
@@ -74,6 +76,7 @@ function App() {
                         <Route path="/task" element={<TaskPage />} />
                         <Route path="/add" element={<AddCardPage />} />
                         <Route path="/deck" element={<DeckPage />} />
+                        <Route path="/ai" element={<AIPage />} />
                     </Routes>
                 </main>
                 <BottomNav />
